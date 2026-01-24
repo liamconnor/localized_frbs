@@ -39,16 +39,18 @@ def check_duplicate(
     Returns the name of the matching FRB if found, None otherwise.
     """
     # First check by TNS name (exact match)
+    # Handle both "FRB20220610A" and "FRB 20220610A" formats
+    clean_name = tns_name.replace('FRB ', 'FRB').replace(' ', '')
     cursor.execute(
-        "SELECT name, TNSname FROM frbs WHERE TNSname = ? OR TNSname = ?",
-        (tns_name, tns_name.replace('FRB ', 'FRB'))
+        "SELECT Name FROM frbs WHERE Name = ? OR Name = ?",
+        (tns_name, clean_name)
     )
     result = cursor.fetchone()
     if result:
-        return result[0]  # Return the internal name
+        return result[0]  # Return the name
 
     # Also check by coordinates (within match_radius)
-    cursor.execute("SELECT name, ra, dec FROM frbs")
+    cursor.execute("SELECT Name, ra, dec FROM frbs")
     for row in cursor.fetchall():
         existing_name, existing_ra, existing_dec = row
         if existing_ra and existing_dec:
@@ -94,27 +96,21 @@ def add_frb_to_database(
             return True, f"Would add: {frb_data.get('TNSname')}"
 
         # Prepare the data for insertion
-        # Match the schema from naturesample_connor2024.csv
+        # Match the actual database schema
+        tns_name = frb_data.get('TNSname', frb_data.get('name', ''))
+        clean_name = tns_name.replace('FRB ', 'FRB').replace(' ', '')
+
         row = {
-            'name': frb_data.get('name', frb_data.get('TNSname', '').replace('FRB ', '')),
-            'TNSname': frb_data.get('TNSname', ''),
-            'mjd': frb_data.get('mjd', -1),
-            'snr_heim': frb_data.get('snr_heim', -1),
-            'dm_heim': frb_data.get('dm_exgal', -1),
-            'dm_opt': frb_data.get('dm_opt', frb_data.get('dm_exgal', -1)),
-            'dm_exgal': frb_data.get('dm_exgal', -1),
-            'ibox': frb_data.get('ibox', -1),
-            'redshift': frb_data.get('redshift', -1),
-            'redshift_type': frb_data.get('redshift_type', 'spec'),
+            'Name': clean_name,
             'ra': frb_data.get('ra', 0),
             'dec': frb_data.get('dec', 0),
-            'secure_host': frb_data.get('secure_host', 'no'),
-            'rm': frb_data.get('rm', -1) if frb_data.get('rm') is not None else -1,
-            'rm_err': frb_data.get('rm_err', -1) if frb_data.get('rm_err') is not None else -1,
-            'survey': frb_data.get('survey', 'unknown'),
-            'ne2001': frb_data.get('ne2001', -1),
-            'dmmax': frb_data.get('dmmax', 2000),
-            'baryon_sample': frb_data.get('baryon_sample', 'TRUE'),
+            'DM': frb_data.get('dm', frb_data.get('dm_exgal', frb_data.get('DM'))),
+            'z': frb_data.get('z', frb_data.get('redshift')),
+            'RM': frb_data.get('rm', frb_data.get('RM')),
+            'RM_err': frb_data.get('rm_err', frb_data.get('RM_err')),
+            'telescope': frb_data.get('telescope', frb_data.get('survey', 'unknown')),
+            'repeater': frb_data.get('repeater', 'no'),
+            'refs': frb_data.get('refs', frb_data.get('reference', '')),
         }
 
         # Get column names from existing table
@@ -173,13 +169,13 @@ def get_database_stats(db_path: str) -> dict:
     cursor.execute("SELECT COUNT(*) FROM frbs")
     stats['total'] = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(*) FROM frbs WHERE redshift > 0")
+    cursor.execute("SELECT COUNT(*) FROM frbs WHERE z IS NOT NULL AND z != ''")
     stats['with_redshift'] = cursor.fetchone()[0]
 
-    cursor.execute("SELECT survey, COUNT(*) FROM frbs GROUP BY survey ORDER BY COUNT(*) DESC")
+    cursor.execute("SELECT telescope, COUNT(*) FROM frbs GROUP BY telescope ORDER BY COUNT(*) DESC")
     stats['by_survey'] = dict(cursor.fetchall())
 
-    cursor.execute("SELECT MIN(redshift), MAX(redshift) FROM frbs WHERE redshift > 0")
+    cursor.execute("SELECT MIN(z), MAX(z) FROM frbs WHERE z IS NOT NULL AND z != ''")
     z_range = cursor.fetchone()
     stats['z_min'] = z_range[0]
     stats['z_max'] = z_range[1]
