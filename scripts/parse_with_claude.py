@@ -57,7 +57,7 @@ Respond with a JSON array of objects. If no new FRBs with redshifts are announce
 Example response:
 ```json
 [
-  {
+  {{
     "TNSname": "FRB 20240101A",
     "ra": 180.5,
     "dec": -45.2,
@@ -68,7 +68,7 @@ Example response:
     "secure_host": "yes",
     "rm": 125.5,
     "rm_err": 2.3
-  }
+  }}
 ]
 ```
 
