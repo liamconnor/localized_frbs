@@ -9,6 +9,7 @@
       "description": "Localized FRBs with spectroscopic or photometric redshifts",
       "tables": {
         "frbs": {
+          "title": "Localized Fast Radio Bursts",
           "sort_desc": "z",
           "size": 50
         }
