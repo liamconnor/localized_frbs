@@ -1,0 +1,179 @@
+{% extends "default:table.html" %}
+
+{% block extra_head %}
+<style>
+  /* Clean, modern styling */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #fafafa;
+  }
+
+  h1 {
+    font-weight: 500;
+    color: #1a1a2e;
+    border-bottom: 3px solid #4361ee;
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  /* Hide the default description at top */
+  .table-description {
+    display: none;
+  }
+
+  /* Style the data table */
+  table.rows-and-columns {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.9em;
+  }
+
+  table.rows-and-columns th {
+    background: #4361ee;
+    color: white;
+    font-weight: 500;
+    padding: 12px 10px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+  }
+
+  table.rows-and-columns th a {
+    color: white !important;
+    text-decoration: none;
+  }
+
+  table.rows-and-columns td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  table.rows-and-columns tr:hover {
+    background: #f8f9ff;
+  }
+
+  table.rows-and-columns tr:nth-child(even) {
+    background: #fafafa;
+  }
+
+  table.rows-and-columns tr:nth-child(even):hover {
+    background: #f0f4ff;
+  }
+
+  /* Filters section */
+  .filters {
+    background: white;
+    padding: 1em;
+    border-radius: 8px;
+    margin-bottom: 1em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  /* Column info at bottom */
+  .column-info {
+    background: white;
+    padding: 1.5em;
+    border-radius: 8px;
+    margin-top: 2em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .column-info h3 {
+    margin-top: 0;
+    color: #4361ee;
+    font-weight: 500;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5em;
+  }
+
+  .column-info table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .column-info td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .column-info td:first-child {
+    font-weight: 600;
+    color: #1a1a2e;
+    width: 120px;
+    font-family: monospace;
+    background: #f8f9fa;
+  }
+
+  .column-info td:last-child {
+    color: #555;
+  }
+
+  /* Source attribution */
+  .source-info {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid #eee;
+    font-size: 0.85em;
+    color: #666;
+  }
+
+  .source-info a {
+    color: #4361ee;
+  }
+
+  /* Pagination */
+  .pagination {
+    margin: 1em 0;
+  }
+
+  .pagination a {
+    background: #4361ee;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-right: 8px;
+  }
+
+  .pagination a:hover {
+    background: #3451d1;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{{ super() }}
+
+<div class="column-info">
+  <h3>Column Descriptions</h3>
+  <table>
+    <tr><td>Name</td><td>FRB name following TNS designation (e.g., FRB20220418A)</td></tr>
+    <tr><td>ra</td><td>Right Ascension in decimal degrees (J2000)</td></tr>
+    <tr><td>dec</td><td>Declination in decimal degrees (J2000)</td></tr>
+    <tr><td>DM</td><td>Dispersion Measure in pc/cm³</td></tr>
+    <tr><td>z</td><td>Redshift (spectroscopic or photometric)</td></tr>
+    <tr><td>ee_a</td><td>Localization error ellipse semi-major axis (arcsec)</td></tr>
+    <tr><td>ee_b</td><td>Localization error ellipse semi-minor axis (arcsec)</td></tr>
+    <tr><td>ee_theta</td><td>Position angle of error ellipse (degrees E of N)</td></tr>
+    <tr><td>RM</td><td>Rotation Measure (rad/m²)</td></tr>
+    <tr><td>repeater</td><td>TRUE if FRB has been observed to repeat</td></tr>
+    <tr><td>telescope</td><td>Discovery telescope (DSA, ASKAP, CHIME, MeerKAT, VLA)</td></tr>
+    <tr><td>refs</td><td>Literature references for localization and host</td></tr>
+    <tr><td>P(O|x)</td><td>Probability of correct host galaxy association</td></tr>
+  </table>
+
+  <div class="source-info">
+    <strong>Data source:</strong>
+    <a href="https://docs.google.com/spreadsheets/d/1nNwhYZWOnTcLq6Uv0KJebxMet4NzAnUKW7SFZ6n3GoY" target="_blank">
+      Community FRB Localization Spreadsheet
+    </a>
+    <br>
+    <strong>Last updated:</strong> January 2025 &nbsp;|&nbsp;
+    <strong>Total FRBs:</strong> {{ table_rows_count if table_rows_count else '162' }}
+  </div>
+</div>
+{% endblock %}

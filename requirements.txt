@@ -1,0 +1,4 @@
+anthropic>=0.18.0
+feedparser>=6.0.0
+requests>=2.28.0
+sqlite-utils>=3.30

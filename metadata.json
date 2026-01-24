@@ -1,0 +1,15 @@
+{
+  "title": "FRB Localization Database",
+  "license": "CC-BY-4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "databases": {
+    "frbs": {
+      "tables": {
+        "frbs": {
+          "sort_desc": "z",
+          "size": 50
+        }
+      }
+    }
+  }
+}

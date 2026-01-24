@@ -1,0 +1,19 @@
+/* Move table description to bottom */
+.table-description {
+    order: 999;
+}
+
+/* Make the main content area a flex container */
+.table-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style the column descriptions nicely */
+.columns-description {
+    background: #f5f5f5;
+    padding: 1em;
+    border-radius: 5px;
+    margin-top: 2em;
+    font-size: 0.9em;
+}

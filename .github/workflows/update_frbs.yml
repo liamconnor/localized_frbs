@@ -1,0 +1,92 @@
+name: Update FRB Database
+
+on:
+  # Run weekly on Mondays at 9am UTC
+  schedule:
+    - cron: '0 9 * * 1'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      days_back:
+        description: 'Days to look back for announcements'
+        required: false
+        default: '14'
+
+jobs:
+  check-for-new-frbs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install anthropic feedparser requests sqlite-utils
+
+      - name: Check for new FRBs
+        id: check
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cd scripts
+          python main.py \
+            --db ../frbs.db \
+            --days ${{ github.event.inputs.days_back || '14' }} \
+            --dry-run \
+            --report ../new_frbs_report.md \
+            --json ../new_frbs.json
+
+      - name: Check if new FRBs found
+        id: check_new
+        run: |
+          if [ -f new_frbs.json ]; then
+            count=$(python -c "import json; print(len(json.load(open('new_frbs.json'))['new_frbs']))")
+            echo "count=$count" >> $GITHUB_OUTPUT
+            if [ "$count" -gt 0 ]; then
+              echo "found=true" >> $GITHUB_OUTPUT
+            else
+              echo "found=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check_new.outputs.found == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Add ${{ steps.check_new.outputs.count }} new FRB(s) to database"
+          title: "New FRB localization(s) found"
+          body-path: new_frbs_report.md
+          branch: frb-updates/${{ github.run_id }}
+          labels: |
+            automated
+            frb-update
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frb-check-results
+          path: |
+            new_frbs_report.md
+            new_frbs.json
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "## FRB Database Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f new_frbs_report.md ]; then
+            cat new_frbs_report.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No new FRBs found." >> $GITHUB_STEP_SUMMARY
+          fi
