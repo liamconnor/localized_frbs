@@ -44,7 +44,11 @@
 
   table.rows-and-columns th a {
     color: white !important;
-    text-decoration: none;
+    text-decoration: underline;
+  }
+
+  table.rows-and-columns th a:hover {
+    color: #ffeb3b !important;
   }
 
   table.rows-and-columns td {
@@ -146,6 +150,9 @@
 {% endblock %}
 
 {% block content %}
+<p style="background: #e8f4fd; padding: 10px; border-radius: 4px; margin-bottom: 1em; font-size: 0.9em;">
+  💡 <strong>Tip:</strong> Click any column header to sort. Click again to reverse order. Use the filters below to search.
+</p>
 {{ super() }}
 
 <div class="column-info">
