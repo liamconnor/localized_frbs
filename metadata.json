@@ -1,9 +1,12 @@
 {
   "title": "FRB Localization Database",
+  "description": "A curated database of 154 localized Fast Radio Bursts with redshifts, coordinates, and host galaxy associations.",
   "license": "CC-BY-4.0",
   "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "source_url": "https://github.com/liamconnor/localized_frbs",
   "databases": {
     "frbs": {
+      "description": "Localized FRBs with spectroscopic or photometric redshifts",
       "tables": {
         "frbs": {
           "sort_desc": "z",
